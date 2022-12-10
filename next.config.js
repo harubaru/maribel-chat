@@ -8,7 +8,6 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   webpack(config) {
-    config.plugins.push(new EnvironmentPlugin(['API_KEY']));
     return config;
   },
 }

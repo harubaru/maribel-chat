@@ -1,8 +1,6 @@
 import { Message } from "./Message";
-import { PromptBook } from "./PromptBook";
 
 export function Button({ btn, message }: { btn: Button; message: Message }) {
-  const addPrompt = PromptBook.use((state) => state.addPrompt);
 
   return (
     <button
@@ -19,8 +17,6 @@ export function Button({ btn, message }: { btn: Button; message: Message }) {
           });
         } else if (btn.id == "remix") {
           Message.sendPromptMessage(message.prompt);
-        } else if (btn.id == "save_prompt" && message.prompt) {
-          addPrompt(message.prompt);
         }
       }}
     >

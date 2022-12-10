@@ -1,0 +1,3 @@
+ray[serve]
+fastapi==0.85.1
+starlette==0.20.4

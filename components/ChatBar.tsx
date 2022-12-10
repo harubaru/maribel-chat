@@ -2,7 +2,6 @@ import { Album, Send, Settings2 } from "lucide-react";
 import create from "zustand";
 import { Message } from "./Message";
 import { MessageList } from "./MessageList";
-import { PromptBook } from "./PromptBook";
 import { PromptEngine } from "./PromptEngine";
 import { Settings } from "./Settings";
 
@@ -10,11 +9,6 @@ export function ChatBar() {
   const [prompt, setPrompt] = ChatBar.use((state) => [
     state.prompt,
     state.setPrompt,
-  ]);
-
-  const [promptBookOpen, setPromptBookOpen] = PromptBook.use((state) => [
-    state.isOpen,
-    state.setOpen,
   ]);
 
   const [settingsOpen, setSettingsOpen] = Settings.use((state) => [
@@ -51,7 +45,6 @@ export function ChatBar() {
       </div>
       <div className="w-full mx-auto max-w-[60.75rem] pr-[0.5rem] lg:pl-0 pl-[0.5rem] relative">
         <Settings />
-        <PromptBook />
         <div
           className={`px-4 py-3 mt-2 z-10 bg-chatbox flex flex-row items-center w-full mb-6 ${
             !prompt && Object.keys(history).length < 10
@@ -62,7 +55,7 @@ export function ChatBar() {
           <input
             type="text"
             className="w-full text-lg text-white/75 placeholder:text-white/30 outline-none focus:border-none bg-transparent"
-            placeholder="Type what you want to see..."
+            placeholder="Type what's on your mind..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => {
@@ -88,24 +81,7 @@ export function ChatBar() {
             <button
               className="cursor-pointer"
               onClick={() => {
-                setPromptBookOpen(!promptBookOpen);
-                setSettingsOpen(false);
-              }}
-            >
-              <Album
-                className={`${
-                  promptBookOpen
-                    ? "text-white"
-                    : "hover:text-white text-white/50"
-                } duration-200`}
-                size={20}
-              />
-            </button>
-            <button
-              className="cursor-pointer"
-              onClick={() => {
                 setSettingsOpen(!settingsOpen);
-                setPromptBookOpen(false);
               }}
             >
               <Settings2

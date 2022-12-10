@@ -3,16 +3,13 @@ import React from "react";
 import { Button } from "./Button";
 import { ChatBar } from "./ChatBar";
 import { MessageList } from "./MessageList";
-import { PromptBook } from "./PromptBook";
 import { PromptEngine } from "./PromptEngine";
 import { Settings } from "./Settings";
 
 export function Message({ id }: { id: string }) {
   const [message, editMessage] = MessageList.useMessage(id);
   const [selectedImage, setSelectedImage] = React.useState(-1);
-
-  const savedPrompts = PromptBook.use((state) => state.prompts);
-
+  
   return (
     <div className={`my-2 w-full hover:bg-black/10`}>
       <div
@@ -26,8 +23,16 @@ export function Message({ id }: { id: string }) {
               {new Date(message.timestamp).toLocaleTimeString()}
             </p>
           )}
+          <img
+            className="w-6 h-6 rounded-full"
+            src={
+              message.type === "you"
+                ? "https://cdn.discordapp.com/attachments/940396199993819237/1051090899343528016/360_F_64678017_zUpiZFjj04cnLri7oADnyMH0XBYyQghG.jpg"
+                : "https://cdn.discordapp.com/attachments/940396199993819237/1051090392117944330/image0_cropped.png"
+            }
+          />
           <h1 className="font-semibold text-white">
-            {message.type === "you" ? "You" : "Stable Diffusion"}
+            {message.type === "you" ? "You" : "Maribel Hearn"}
           </h1>
           {message.modifiers && message.type !== "you" && (
             <Wand2 className="text-white/30" size={16} />

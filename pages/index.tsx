@@ -35,8 +35,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Diffusion Chat</title>
-        <meta name="description" content="Talk directly to latent space" />
+        <title>Maribel Chat</title>
+        <meta name="description" content="Don't be so carefree" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
