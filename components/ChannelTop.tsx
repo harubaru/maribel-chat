@@ -7,9 +7,9 @@ export function ChannelTop() {
         <div className="p-3 rounded-full bg-white/10 w-fit">
           <MessageCircle className="text-white/75" size={32} />
         </div>
-        <h1 className="text-4xl font-bold">Welcome to #diffusion-chat</h1>
+        <h1 className="text-4xl font-bold">Welcome to #maribel-chat</h1>
         <h2 className="text-white/75 text-xl mt-2">
-          Talk directly to latent space.
+          A boundary between fantasy and reality is nothing but a dream.
         </h2>
         <div className="border-b border-white/10" />
       </div>

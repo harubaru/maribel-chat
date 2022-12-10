@@ -20,16 +20,14 @@ export function Settings() {
           <h1 className="text-white text-sm font-semibold">Model</h1>
         </div>
         <div className="flex flex-row gap-2">
-          {["v1.5", "v2.1", "v2.1 large"].map((model) => (
+          {["Convo 125M", "Convo 6B"].map((model) => (
             <button
               key={model}
               className={`rounded flex justify-center font-semibold px-2 items-center ${
                 settings.model ===
-                (model === "v1.5"
-                  ? "stable-diffusion-v1-5"
-                  : model === "v2.1"
-                  ? "stable-diffusion-512-v2-1"
-                  : "stable-diffusion-768-v2-1")
+                (model === "Convo 125M"
+                  ? "convogpt-125m"
+                  : "convogpt-6b")
                   ? "bg-white/10 text-white"
                   : "hover:text-white text-white/75"
               }`}
@@ -37,19 +35,13 @@ export function Settings() {
                 setSettings({
                   ...settings,
                   model:
-                    model === "v1.5"
-                      ? "stable-diffusion-v1-5"
-                      : model === "v2.1"
-                      ? "stable-diffusion-512-v2-1"
-                      : "stable-diffusion-768-v2-1",
-                  width: Math.max(
-                    model === "v2.1 large" ? 768 : 512,
-                    settings.width
-                  ),
-                  height: Math.max(
-                    model === "v2.1 large" ? 768 : 512,
-                    settings.height
-                  ),
+                    model === "Convo 125M"
+                      ? "convogpt-125m"
+                      : "convogpt-6b",
+                  length: Math.max(
+                    100,
+                    settings.length
+                  )
                 });
               }}
             >
@@ -61,23 +53,22 @@ export function Settings() {
 
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between">
-          <h1 className="text-white text-sm font-semibold">Size</h1>
+          <h1 className="text-white text-sm font-semibold">Length</h1>
           <p className="text-white/50 text-sm">
-            {settings.width}x{settings.height}
+            {settings.length}
           </p>
         </div>
         <input
           type="range"
           className="w-full h-2 bg-white/10 rounded-full appearance-none"
-          min={settings.model === "stable-diffusion-768-v2-1" ? 768 : 512}
-          max={1024}
-          step={64}
-          value={settings.width}
+          min={10}
+          max={50}
+          step={1}
+          value={settings.length}
           onChange={(e) => {
             setSettings({
               ...settings,
-              width: parseInt(e.target.value),
-              height: parseInt(e.target.value),
+              length: parseInt(e.target.value)
             });
           }}
         />
@@ -85,14 +76,14 @@ export function Settings() {
 
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between">
-          <h1 className="text-white text-sm font-semibold">Image Count</h1>
+          <h1 className="text-white text-sm font-semibold">Message Count</h1>
           <p className="text-white/50 text-sm">{settings.count}</p>
         </div>
         <input
           type="range"
           className="w-full h-2 bg-white/10 rounded-full appearance-none"
           min={1}
-          max={10}
+          max={4}
           step={1}
           value={settings.count}
           onChange={(e) => {
@@ -103,40 +94,14 @@ export function Settings() {
           }}
         />
       </div>
-
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-white text-sm font-semibold">Steps</h1>
-          <p className="text-white/50 text-sm">{settings.steps}</p>
-        </div>
-        <input
-          type="range"
-          className="w-full h-2 bg-white/10 rounded-full appearance-none"
-          min={10}
-          max={150}
-          step={1}
-          value={settings.steps}
-          onChange={(e) => {
-            setSettings({
-              ...settings,
-              steps: parseInt(e.target.value),
-            });
-          }}
-        />
-      </div>
     </div>
   );
 }
 
 export type Settings = {
-  model:
-    | "stable-diffusion-v1-5"
-    | "stable-diffusion-512-v2-1"
-    | "stable-diffusion-768-v2-1";
-  width: number;
-  height: number;
+  model: string;
+  length: number;
   count: number;
-  steps: number;
 };
 
 export type SettingsState = {
@@ -150,11 +115,9 @@ export type SettingsState = {
 export namespace Settings {
   export const use = create<SettingsState>()((set) => ({
     settings: {
-      model: "stable-diffusion-v1-5",
-      width: 512,
-      height: 512,
-      count: 4,
-      steps: 30,
+      model: "convo-6b",
+      length: 40,
+      count: 4
     } as Settings,
     setSettings: (settings: Settings) =>
       set((state: SettingsState) => ({
