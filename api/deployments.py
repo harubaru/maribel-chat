@@ -1,3 +1,4 @@
+import torch
 import ray
 from fastapi import FastAPI
 from ray import serve
@@ -9,7 +10,22 @@ class Prompt(BaseModel):
     length: int
     count: int
 
+class Feedback(BaseModel):
+    input: str
+    output: str
+    reward: float
+
 app = FastAPI()
+
+class FeedbackReceiver:
+    # store feedback in jsonl file
+    def __init__(self, filename: str):
+        self.filename = filename
+
+    @app.post("/feedback")
+    def post_feedback(self, feedback: Feedback):
+        with open(self.filename, 'a') as f:
+            f.write(f'{feedback.json()}\n')
 
 class GPTGenerator:
     def __init__(self, model_name_or_path: str):
@@ -36,7 +52,7 @@ class GPTGenerator:
             typical_p=0.98,
             repetition_penalty=1.05,
             pad_token_id=self.tokenizer.eos_token_id
-        )
+        )[:, input_ids.shape[1]:]
 
         output = self.tokenizer.batch_decode(
             output,
@@ -59,4 +75,5 @@ class GenerateDistilGPT2:
             prompt.count
         )
 
+feedback = FeedbackReceiver('feedback.jsonl')
 distilgpt2 = GenerateDistilGPT2.bind()
