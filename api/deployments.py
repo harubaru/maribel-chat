@@ -17,16 +17,6 @@ class Feedback(BaseModel):
 
 app = FastAPI()
 
-class FeedbackReceiver:
-    # store feedback in jsonl file
-    def __init__(self, filename: str):
-        self.filename = filename
-
-    @app.post("/feedback")
-    def post_feedback(self, feedback: Feedback):
-        with open(self.filename, 'a') as f:
-            f.write(f'{feedback.json()}\n')
-
 class GPTGenerator:
     def __init__(self, model_name_or_path: str):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
@@ -46,12 +36,14 @@ class GPTGenerator:
 
         output = self.model.generate(
             input_ids=input_ids,
+            do_sample=True,
             max_new_tokens=max_length,
             temperature=0.8,
             top_p=0.9,
             typical_p=0.98,
             repetition_penalty=1.05,
-            pad_token_id=self.tokenizer.eos_token_id
+            pad_token_id=self.tokenizer.eos_token_id,
+            eos_token_id=198,
         )[:, input_ids.shape[1]:]
 
         output = self.tokenizer.batch_decode(
@@ -61,11 +53,11 @@ class GPTGenerator:
 
         return output
 
-@serve.deployment(route_prefix="/distilgpt2", num_replicas=1, ray_actor_options={"num_gpus": 1})
+@serve.deployment(route_prefix="/convogpt-6b", num_replicas=1, ray_actor_options={"num_gpus": 1})
 @serve.ingress(app)
-class GenerateDistilGPT2:
+class GenerateConvoGPT6B:
     def __init__(self):
-        self.generator = GPTGenerator("distilgpt2")
+        self.generator = GPTGenerator("../../models/litv2-6b")
 
     @app.get("/generate")
     def get_generate(self, prompt: Prompt):
@@ -75,5 +67,9 @@ class GenerateDistilGPT2:
             prompt.count
         )
 
-feedback = FeedbackReceiver('feedback.jsonl')
-distilgpt2 = GenerateDistilGPT2.bind()
+    @app.post("/feedback")
+    def post_feedback(self, feedback: Feedback):
+        with open('feedback.jsonl', 'a') as f:
+            f.write(f'{feedback.json()}\n')
+
+convo6b = GenerateConvoGPT6B.bind()

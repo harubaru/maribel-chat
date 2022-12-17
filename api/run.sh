@@ -1,3 +1,3 @@
 #!/bin/sh
 
-serve run deployments:distilgpt2
+serve run deployments:convo6b
