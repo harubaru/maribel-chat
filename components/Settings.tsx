@@ -20,14 +20,14 @@ export function Settings() {
           <h1 className="text-white text-sm font-semibold">Model</h1>
         </div>
         <div className="flex flex-row gap-2">
-          {["Convo 125M", "Convo 6B"].map((model) => (
+          {["Convo 125M", "Lotus 12B"].map((model) => (
             <button
               key={model}
               className={`rounded flex justify-center font-semibold px-2 items-center ${
                 settings.model ===
                 (model === "Convo 125M"
                   ? "convogpt-125m"
-                  : "convogpt-6b")
+                  : "lotus-12b")
                   ? "bg-white/10 text-white"
                   : "hover:text-white text-white/75"
               }`}
@@ -37,7 +37,7 @@ export function Settings() {
                   model:
                     model === "Convo 125M"
                       ? "convogpt-125m"
-                      : "convogpt-6b",
+                      : "lotus-12b",
                   length: Math.max(
                     100,
                     settings.length
@@ -115,8 +115,8 @@ export type SettingsState = {
 export namespace Settings {
   export const use = create<SettingsState>()((set) => ({
     settings: {
-      model: "convo-6b",
-      length: 40,
+      model: "lotus-12b",
+      length: 24,
       count: 4
     } as Settings,
     setSettings: (settings: Settings) =>

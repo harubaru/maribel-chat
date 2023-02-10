@@ -23,15 +23,15 @@ export function Message({ id }: { id: string }) {
               {new Date(message.timestamp).toLocaleTimeString()}
             </p>
           )}
-          {/* <img
+          {<img
             className="w-6 h-6 rounded-full"
             src={
               message.type === "you"
-                ? "https://cdn.discordapp.com/attachments/940396199993819237/1051090899343528016/360_F_64678017_zUpiZFjj04cnLri7oADnyMH0XBYyQghG.jpg"
-                : "https://cdn.discordapp.com/attachments/940396199993819237/1051090392117944330/image0_cropped.png"
+                ? "https://cdn.discordapp.com/attachments/841198858063052810/1073493413309202453/image2.webp"
+                : "https://cdn.discordapp.com/attachments/841198858063052810/1073493215996543036/image0_cropped.png"
             }
             alt="Avatar"
-          /> */}
+          />}
           <h1 className="font-semibold text-white">
             {message.type === "you" ? "You" : "Maribel Hearn"}
           </h1>
@@ -41,6 +41,55 @@ export function Message({ id }: { id: string }) {
             message.type === MessageType.YOU && "text-right"
           } break-word`}
         >
+          {message.buttons && message.buttons.length > 0 && (
+            <div className="flex flex-row gap-2 my-2">
+              {message.buttons.map((btn, i) => {
+                if (
+                  btn.id === "regenerate" &&
+                  message.type === MessageType.BOT
+                ) {
+                  return (
+                    <button
+                      key={i}
+                      className="border-white/10 border rounded px-3 py-1 text-white/75 font-semibold hover:bg-backgroundSecondary hover:text-white/100 duration-200"
+                      onClick={() => {
+                        return null; // TODO: implement
+                      }}
+                    >
+                      {btn.text}
+                    </button>
+                  );
+                }
+                if (btn.id === "chosen") {
+                  return (
+                    <button
+                      key={i}
+                      className="border-white/10 border rounded px-3 py-1 text-white/75 font-semibold hover:bg-backgroundSecondary hover:text-white/100 duration-200"
+                      onClick={() => {
+                        const newMsg: Message = {
+                          type: MessageType.BOT,
+                          content: btn.text,
+                          loading: false,
+                          buttons: [],
+                          id: Message.makeId(),
+                          timestamp: Date.now(),
+                          error: null,
+                        };
+                        MessageList.use.getState().addMessage(
+                          newMsg
+                        );
+                        MessageList.use.getState().deleteMessage(
+                          message.id
+                        );
+                      }}
+                    >
+                      {btn.text}
+                    </button>
+                  );
+                }
+              })}
+            </div>
+          )}
           {message.content}
         </p>
         {message.error && <p className="text-red-500">{message.error}</p>}
@@ -72,11 +121,6 @@ export type Message = {
   error: string | null;
 };
 
-export type Artifact = {
-  image: string;
-  seed: number;
-};
-
 const endpoint = "https://api.transformer.chat";
 
 export namespace Message {
@@ -100,10 +144,9 @@ export namespace Message {
   };
 
   export const sendPromptMessage = async (
-    prompt: string,
-    modifiers?: string
+    prompt: string
   ) => {
-    if (!prompt && !modifiers) return;
+    if (!prompt) return;
 
     const settings = Settings.use.getState().settings;
 
@@ -117,13 +160,11 @@ export namespace Message {
       error: null,
     };
 
-    // get the last 10 messages
+    // get the last 50 messages
     const messages = MessageList.use.getState().messages;
-    const last10 = [...Object.values(messages).slice(-10), newUserMsg];
+    const last10 = [...Object.values(messages).slice(-50), newUserMsg];
 
     const builtPrompt = PromptEngine.makePrompt(last10) + "\nMaribel Hearn:";
-
-    console.log(builtPrompt);
 
     ChatBar.use.getState().setPrompt("");
 
@@ -147,14 +188,23 @@ export namespace Message {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         prompt: builtPrompt,
-        engine: "lotus-12b",
-        max_new_tokens: 24,
+        engine: settings.model,
+        max_new_tokens: settings.length,
         temperature: 0.75,
         do_sample: true,
-        num_return_sequences: 1,
+        num_return_sequences: settings.count,
         stop_sequence: "\n",
       }),
     });
+    
+    /*
+    newMsg.buttons = [
+      {
+        text: "Retry",
+        id: "regenerate",
+      },
+    ];
+    */
 
     if (!res.ok) {
       switch (res.status) {
@@ -169,12 +219,6 @@ export namespace Message {
           break;
       }
       newMsg.loading = false;
-      newMsg.buttons = [
-        {
-          text: "Retry",
-          id: "regenerate",
-        },
-      ];
       MessageList.use.getState().editMessage(uid, newMsg);
       return;
     }
@@ -182,9 +226,18 @@ export namespace Message {
     const data = await res.json();
 
     newMsg.loading = false;
-    newMsg.content = data[0].generated_text.replace(builtPrompt, "").trim();
+    // since data is an array we need to use all of them and render them as buttons
+    if (settings.count > 1) {
+      data.forEach((d: any) => {
+        newMsg.buttons.push({
+          text: d.generated_text.replace(builtPrompt, "").trim(),
+          id: "chosen"
+        });
+      });
+    } else {
+      newMsg.content = data[0].generated_text.replace(builtPrompt, "").trim();
+    }
 
-    console.log("new msg", newMsg);
     MessageList.use.getState().editMessage(uid, newMsg);
   };
 }

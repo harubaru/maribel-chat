@@ -1,4 +1,5 @@
-import { Message } from "./Message";
+import { Message, MessageType } from "./Message";
+import { MessageList } from "./MessageList";
 
 export function Button({ btn, message }: { btn: Button; message: Message }) {
 
@@ -7,16 +8,19 @@ export function Button({ btn, message }: { btn: Button; message: Message }) {
       className="border-white/10 border rounded px-3 py-1 text-white/75 font-semibold hover:bg-backgroundSecondary hover:text-white/100 duration-200"
       onClick={() => {
         if (btn.id == "regenerate") {
-          Message.sendPromptMessage(message.prompt, message.modifiers);
-        } else if (btn.id == "save") {
-          message.images?.forEach((image) => {
-            const link = document.createElement("a");
-            link.href = image.image;
-            link.download = `image-${new Date().getTime()}.png`;
-            link.click();
-          });
-        } else if (btn.id == "remix") {
-          Message.sendPromptMessage(message.prompt);
+          Message.sendPromptMessage(message.content);
+        } else if (btn.id == "chosen") {
+          const newMsg: Message = {
+            type: MessageType.BOT,
+            content: btn.text,
+            loading: true,
+            buttons: [],
+            id: Message.makeId(),
+            timestamp: Date.now(),
+            error: null,
+          };
+          MessageList.use.getState().editMessage(message.id, newMsg);
+
         }
       }}
     >
