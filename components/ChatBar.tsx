@@ -20,7 +20,7 @@ export function ChatBar() {
 
   return (
     <>
-      <div
+      {/* <div
         className={`${
           !prompt && Object.keys(history).length < 1 ? "" : ""
         } relative w-full mx-auto max-w-[60.75rem]`}
@@ -42,13 +42,13 @@ export function ChatBar() {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="w-full mx-auto max-w-[60.75rem] pr-[0.5rem] lg:pl-0 pl-[0.5rem] relative">
         <Settings />
         <div
           className={`px-4 py-3 mt-2 z-10 bg-chatbox flex flex-row items-center w-full mb-6 ${
             !prompt && Object.keys(history).length < 10
-              ? "border-t border-background rounded-b-lg"
+              ? "border-t border-background rounded-lg"
               : "rounded-lg"
           }`}
         >
